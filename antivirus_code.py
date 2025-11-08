@@ -44,23 +44,24 @@ def scan_folder():
         for name in file_names:
             file_path = os.path.abspath(os.path.join(dir_name, name))
             if os.path.normcase(file_path) == os.path.normcase(rules_path):
-                try:
-                    matches = rules.match(file_path)
-                    if matches:
-                        result = f"[INFECTED] {file_path}\n"
-                        infected_files.append(file_path)
-                        scanned_files.insert(tk.END, result, "infected")
-                    else:
-                        result = f"[OK] {file_path}\n"
-                        scanned_files.insert(tk.END, result)
+                continue
+            try:
+                matches = rules.match(file_path)
+                if matches:
+                    result = f"[INFECTED] {file_path}\n"
+                    infected_files.append(file_path)
+                    scanned_files.insert(tk.END, result, "infected")
+                else:
+                    result = f"[OK] {file_path}\n"
+                    scanned_files.insert(tk.END, result)
 
-                    scanned_files.see(tk.END)
-                    scanned_files.update()
+                scanned_files.see(tk.END)
+                scanned_files.update()
 
-                except yara.Error as e:
-                    scanned_files.insert(tk.END, f"[Skipped: {e}] {file_path}\n")
-                except PermissionError:
-                    scanned_files.insert(tk.END, f"[Permission denied] {file_path}\n")
+            except yara.Error as e:
+                scanned_files.insert(tk.END, f"[Skipped: {e}] {file_path}\n")
+            except PermissionError:
+                scanned_files.insert(tk.END, f"[Permission denied] {file_path}\n")
 
     scanned_files.insert(tk.END, "\nSCAN COMPLETED\n")
     if  len(infected_files) > 0:
