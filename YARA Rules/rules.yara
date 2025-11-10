@@ -1,114 +1,84 @@
-rule trojan_checker 
+rule trojan_check
 {
     strings:
-        $vp = "VirtualProtect"
-        $vp_w = "VirtualProtect" wide
+        $s0 = "VirtualProtect"
+        $s1 = "VirtualAlloc"
 
-        $va = "VirtualAlloc"
-        $va_w = "VirtualAlloc" wide
+        $s2 = "IsValidSid"
+        $s3 = "Netbios"
+        $s4 = "ShellExecute"
 
-        $ivs = "IsValidSid"
-        $ivs_w = "IsValidSid" wide
+        $s5 = "URLDownloadToFile"
+        $s6 = "FtpPutFile"
+        $s7 = "send"
 
-        $nb = "Netbios"
-        $nb_w = "Netbios" wide
+        $s8 = "WS2_32.dll"
+		$s9 = "StartService"
+		$s10 = "SetSecurityInfo"
 
-        $se = "ShellExecute"
-        $se_w = "ShellExecute" wide
+        
 
-        $urldtf = "URLDownloadToFile"
-        $urldtf_w = "URLDownloadToFile" wide
+        $s11 = "DeleteFile"
+        $s12 = "FindFirstFile"
+        $s13 = "FindNextFile"
+        $s14 = "WriteFile"
 
-        $ftppf = "FtpPutFile"
-        $ftppf_w = "FtpPutFile" wide
+        $s15 = "SearchPath"
+        $s16 = "CreateDirectory"
+        $s17 = "RemoveDirectory"
 
-        $send = "send"
-        $send_w = "send" wide
+        $s18 = "CopyFile"
 
-        $ws2 = "WS2_32.dll"
-        $ws2_w = "WS2_32.dll" wide
-
-        $upx = "UPX!" nocase
-        $upx_w = "UPX!" nocase wide
-
+        $s19 = "CreateProcess"
+		
+		$s20 = "RegEnumKey"
+		$s21 = "RegCreateKeyEx"
+		$s22 = "RegDeleteValue"
+		$s23 = "RegDeleteKey"
+		$s24 = "RegCloseKey"
+		$s25 = "RegEnumValue"
+		$s26 = "RegOpenKey"
+		
+		$s27 = "WinExec"
+		$s28 = "SetFileAttributes"
+		$s29 = "MoveFileEx"
+		
     condition:
-        uint16(0) == 0x5A4D and
-        (
-            (($vp or $vp_w) and ($va or $va_w) and ($ivs or $ivs_w))
-            or
-            (($se or $se_w) and ($nb or $nb_w))
-            or 
-            (($urldtf or $urldtf_w) or ($ftppf or $ftppf_w) and ($ws2 or $ws2_w) and ($send or $send_w))
-        )
-        and
-        ($upx or $upx_w)
+        uint16(0) == 0x5A4D 
+		and
+		(
+			(any of ($s0, $s1) and 4 of ($s*))
+			or 5 of ($s*)
+		)
 }
 
-rule adware_checker 
+rule adware_check
 {
-    strings:
-        $slv32 = "SysListView32"
-        $slv32_w = "SysListView32" wide
+	strings:
+		$a1 = "URLDownloadToFile"
+		$a2 = "FtpPutFile"
+		$a3 = "send"
+		$a4 = "http://"
+		$a5 = "ShellExecute"
+		$a6 = "WinHttpOpen"
+		$a7 = "InternetConnect"
+		$a8 = "CreateProcess"
+		$a9 = "WinHttpSendRequest"
+	condition:
+		3 of ($a*)
+}
 
-        $file_delete = "DeleteFile"
-        $file_delete_w = "DeleteFile" wide
-
-        $find_first_file = "FindFirstFile"
-        $find_first_file_w = "FindFirstFile" wide
-
-        $find_next_file = "FindNextFile"
-        $find_next_file_w = "FindNextFile" wide
-
-        $write_file = "WriteFile"
-        $write_file_w = "WriteFile" wide
-
-        $search_path = "SearchPath"
-        $search_path_w = "SearchPath" wide
-
-        $create_directory = "CreateDirectory"
-        $create_directory_w = "CreateDirectory" wide
-
-        $remove_directory = "RemoveDirectory"
-        $remove_directory_w = "RemoveDirectory" wide
-
-        $copy_file = "CopyFile"
-        $copy_file_w = "CopyFile" wide
-
-        $create_process = "CreateProcess"
-        $create_process_w = "CreateProcess" wide
-    
-    condition:
-        uint16(0) == 0x5A4D
-        and
-        ($slv32 or $slv32_w)
-        or
-        (
-            ($file_delete or $file_delete_w)
-            and
-            ($find_first_file or $find_first_file_w)
-            and
-            ($find_next_file or $find_next_file_w)
-            and
-            ($write_file or $write_file_w)
-            and
-            ($search_path or $search_path_w)
-            and
-            ($create_directory or $create_directory_w)
-            and
-            ($remove_directory or $remove_directory_w)
-            and
-            ($copy_file or $copy_file_w)
-            and
-            ($create_process or $create_process_w)
-        )
-        // or
-        // (
-        //     ($reg_enum_key or $reg_enum_key_w)
-        //     and
-        //     ($reg_create_key_ex or $reg_create_key_ex_w)
-        //     and
-        //     ($reg_delete_value or $ref_delete_value_w)
-        //     and
-        //     ($reg_delete_key or $reg_delete_key_w)
-        // )
+rule ransomware_check
+{
+	strings:
+		$r1 = "your files have been encrypted" nocase
+		$r2 = "your files are encrypted" nocase
+		$r3 = "recover" nocase
+		$r4 = "restore" nocase
+		$r5 = "bitcoin" nocase
+		$r6 = "pay" nocase
+		$r7 = "payment" nocase
+		$r8 = "locked" nocase
+	condition:
+		4 of ($r*)
 }
