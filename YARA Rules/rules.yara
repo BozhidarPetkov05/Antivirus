@@ -40,11 +40,9 @@ rule trojan_check
         $s35 = "InternetOpenUrl"
         $s36 = "InternetReadFile"
 
-        $exclude1 = "Inno Setup"
-        $exclude2 = "NSIS"
-        $exclude3 = "InstallShield"
-        $exclude4 = "setup.exe"
-        $exclude5 = "installer"
+        $exclude1 = "InstallShield"
+        $exclude2 = "setup.exe"
+        $exclude3 = "installer"
 		
     condition:
         uint16(0) == 0x5A4D and
@@ -67,9 +65,6 @@ rule adware_check
         $a7 = "InternetConnect"
         $a8 = "CreateProcess"
         $a9 = "WinHttpSendRequest"
-        $a10 = "popup"
-        $a11 = "advert"
-        $a12 = "banner"
     condition:
         3 of ($a*)
 }
